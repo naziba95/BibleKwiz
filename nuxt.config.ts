@@ -1,18 +1,23 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2024-04-03',
+  compatibilityDate: '2023-11-15', // Set to current date or recent past date
+
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
-  devtools: { enabled: false },
+
+  devtools: { enabled: process.env.NODE_ENV !== 'production' },
+
   runtimeConfig: {
     public: {
       apiBaseUrl: process.env.BASE_URL
     }
   },
+
   app: {
     head: {
       title: 'BibleKwiz',
       meta: [
-        { name: 'description', content: 'Everything about Nuxt-3' }
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'BibleKwiz App' }
       ],
       link: [
         {
@@ -23,4 +28,11 @@ export default defineNuxtConfig({
     }
   },
 
+  // Add these if needed
+  ssr: true, // Enable server-side rendering
+
+  // For Vercel deployment
+  nitro: {
+    preset: 'vercel'
+  }
 })
