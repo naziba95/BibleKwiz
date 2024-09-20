@@ -4,13 +4,16 @@
   
   <script setup>
   import { onMounted } from 'vue'
-  import { useRouter } from 'vue-router'
+  import { useRouter } from '#app'
   
   const router = useRouter()
   
   onMounted(() => {
-    if (router.currentRoute.value.path === '/') {
-      router.push('/login')
-    }
+    // Wrap the router access in a nextTick to ensure it's available
+    nextTick(() => {
+      if (router.currentRoute.value.path === '/') {
+        router.push('/login')
+      }
+    })
   })
   </script>
