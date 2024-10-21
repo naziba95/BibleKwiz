@@ -7,7 +7,7 @@
           </h2>
           <p class="mt-2 text-center text-sm text-gray-600">
             Or
-            <NuxtLink to="/quiz/signup" class="font-medium text-blue-600 hover:text-blue-500">
+            <NuxtLink to="/signup" class="font-medium text-blue-600 hover:text-blue-500">
               create a new account
             </NuxtLink>
           </p>
@@ -120,17 +120,17 @@
 
   try {
     const response = await fetch(`${baseUrl}/users/login`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    email: email.value,
-    password: password.value,
-  }),
-})
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value,
+      }),
+    })
 
-const responseData = await response.json()
+    const responseData = await response.json()
 
     if (responseData.statusCode === 200) {
       const userData = responseData.data.user
@@ -139,11 +139,14 @@ const responseData = await response.json()
         rank: userData.rank,
         points: userData.points,
         id: userData.id,
+        CompletionStatus: userData.CompletionStatus,
       })
+      // Store the token in localStorage or a secure cookie
+      localStorage.setItem('token', responseData.data.access_token)
       await router.push('/home')
       console.log('Navigation attempted')
     } else {
-      error.value = response.message || 'Invalid email or password'
+      error.value = responseData.message || 'Invalid email or password'
     }
   } catch (err) {
     error.value = 'An error occurred during login. Please try again.'
@@ -151,5 +154,4 @@ const responseData = await response.json()
     isLoading.value = false
   }
 }
-
   </script>

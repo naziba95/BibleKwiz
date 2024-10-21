@@ -1,3 +1,5 @@
+import { defineNuxtConfig } from 'nuxt/config'
+
 export default defineNuxtConfig({
   compatibilityDate: '2023-11-15', // Set to current date or recent past date
 
@@ -32,7 +34,11 @@ export default defineNuxtConfig({
   ssr: true, // Enable server-side rendering
 
   // For Vercel deployment
-  nitro: {
-    preset: 'vercel'
-  }
+  // nitro: {
+  //   preset: 'vercel',
+    
+  // },
+  // server: {
+  //   host: '0.0.0.0' // Important for Docker
+  // }
 })

@@ -112,6 +112,7 @@
     console.log(baseUrl)
   const quizStore = useQuizStore()
   const userStore = useUserStore()
+  const { user } = toRefs(userStore)
   
   const router = useRouter()
   const route = useRoute()
@@ -265,7 +266,21 @@
     console.log('Closing quiz')
   }
   
-  function goToHome() {
+  async function goToHome() {
+  console.log('goToHome function called')
+  try {
+    if (!userStore.user || !userStore.user.id) {
+      console.error('User or user ID is not available')
+      router.push('/home')
+      return
+    }
+    console.log('Attempting to fetch user data for ID:', userStore.user.id)
+    await userStore.fetchAndUpdateUserData(userStore.user.id)
+    console.log('User data successfully updated')
+    router.push('/home')
+  } catch (error) {
+    console.error('Error updating user data:', error)
     router.push('/home')
   }
+}
   </script>
