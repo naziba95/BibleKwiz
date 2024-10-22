@@ -52,11 +52,21 @@
             <div class="bg-blue-100 rounded-lg p-6">
               <h2 class="text-2xl font-semibold text-center">{{ currentQuestionData.question }}</h2>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Start Timer Button -->
+            <div v-if="!timerStarted && !showResult" class="flex justify-center">
+              <button
+                @click="startTimer"
+                class="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors"
+              >
+                Start Timer
+              </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" :class="{ 'opacity-50': !timerStarted && !showResult }">
               <button
                 v-for="option in ['A', 'B', 'C', 'D']"
                 :key="option"
                 @click="selectAnswer(option)"
+                :disabled="!timerStarted && !showResult"
                 :class="[
                   'p-4 rounded-lg text-left transition-colors text-lg font-bold',
                   {
@@ -66,7 +76,6 @@
                     'bg-red-500 text-white': (showResult && selectedAnswer === option && option !== currentQuestionData.correctOption) || (failed && option === currentQuestionData.correctOption)
                   }
                 ]"
-                :disabled="failed"
               >
                 {{ currentQuestionData[`option${option}`] }}
               </button>
@@ -98,9 +107,8 @@
   import { useUserStore } from '~/store.js'
   
   const config = useRuntimeConfig()
-  const baseUrl = ref('https://biblekwiz-server.onrender.com') // Default URL
+  const baseUrl = ref('https://biblekwiz-server.onrender.com')
   
-  // Safely get baseUrl from config
   try {
     if (config.public && config.public.apiBaseUrl) {
       baseUrl.value = config.public.apiBaseUrl
@@ -108,8 +116,6 @@
   } catch (error) {
     console.error('Error accessing config:', error)
   }
-  
-  console.log('Base URL:', baseUrl.value)
   
   const quizStore = useQuizStore()
   const userStore = useUserStore()
@@ -129,6 +135,8 @@
   const totalTime = 15
   const timer = ref(null)
   const failed = ref(false)
+  // New ref for tracking if timer has been started
+  const timerStarted = ref(false)
   
   const userId = computed(() => {
     if (userStore.user && userStore.user.id) {
@@ -147,9 +155,6 @@
   
   onMounted(async () => {
     await fetchQuizData()
-    if (quizData.value) {
-      startTimer()
-    }
   })
   
   onUnmounted(() => {
@@ -168,7 +173,7 @@
       const response = await fetch(`${baseUrl.value}/quiz/active/byday?day=80`)
       const result = await response.json()
       if (Array.isArray(result) && result.length > 0) {
-        quizData.value = result[0] // Take the first quiz from the array
+        quizData.value = result[0]
         console.log('Quiz data loaded:', quizData.value)
       } else {
         throw new Error('No quiz data found')
@@ -182,7 +187,7 @@
   }
   
   function selectAnswer(option) {
-    if (!showResult.value && currentQuestionData.value && !failed.value) {
+    if (!showResult.value && currentQuestionData.value && !failed.value && timerStarted.value) {
       selectedAnswer.value = option
       showResult.value = true
       stopTimer()
@@ -203,22 +208,25 @@
     showResult.value = false
     failed.value = false
     timeLeft.value = totalTime
-    startTimer()
+    timerStarted.value = false // Reset timer started state
   }
   
   function startTimer() {
-    timer.value = setInterval(() => {
-      if (timeLeft.value > 0) {
-        timeLeft.value -= 0.1
-      } else {
-        stopTimer()
-        if (selectedAnswer.value === null) {
-          handleFailure()
+    if (!timerStarted.value) {
+      timerStarted.value = true
+      timer.value = setInterval(() => {
+        if (timeLeft.value > 0) {
+          timeLeft.value -= 0.1
         } else {
-          showResult.value = true
+          stopTimer()
+          if (selectedAnswer.value === null) {
+            handleFailure()
+          } else {
+            showResult.value = true
+          }
         }
-      }
-    }, 100)
+      }, 100)
+    }
   }
   
   function stopTimer() {
