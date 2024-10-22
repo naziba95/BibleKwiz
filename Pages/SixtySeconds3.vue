@@ -30,7 +30,7 @@
               @click="startQuiz" 
               class="px-8 py-4 bg-green-500 text-white rounded-lg hover:bg-green-600 font-bold text-lg"
             >
-              <p class="p-7">Start Quiz</p>
+              <p class="p-3">Start Quiz</p>
             </button>
           </div>
   
